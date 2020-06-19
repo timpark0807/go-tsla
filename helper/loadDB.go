@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 	"github.com/timpark0807/go-tsla/model"
 )
 
@@ -30,11 +31,8 @@ func ReadFile() model.Stations {
 
 func LoadDB(stations []model.Station) {
 
-	dbConnectionString, exists := os.LookupEnv("DB_CONNECTION_STRING")
-
-	if !exists {
-		return
-	}
+	err := godotenv.Load()
+	dbConnectionString := os.Getenv("DB_CONNECTION_STRING")
 
 	db, err := sql.Open("mysql", dbConnectionString)
 	if err != nil {
