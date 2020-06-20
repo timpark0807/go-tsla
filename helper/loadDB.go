@@ -43,17 +43,36 @@ func LoadDB(stations []model.Station) {
 	valueStrings := make([]string, 0, len(stations))
 	valueArgs := make([]interface{}, 0, len(stations)*6)
 	for index, station := range stations {
-		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?)")
+		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?, ?, ?)")
+		output := processLocality(station.Address.Locality)
 		valueArgs = append(valueArgs, index)
 		valueArgs = append(valueArgs, station.Name)
 		valueArgs = append(valueArgs, station.URL)
-		valueArgs = append(valueArgs, station.Active)
 		valueArgs = append(valueArgs, station.Address.Street)
-		valueArgs = append(valueArgs, station.Address.Locality)
+		valueArgs = append(valueArgs, station.Active)
+		valueArgs = append(valueArgs, output["city"])
+		valueArgs = append(valueArgs, output["state"])
+		valueArgs = append(valueArgs, output["zipcode"])
 	}
-	stmt := fmt.Sprintf("INSERT INTO superchargers (id, name, url, active, street, locality) VALUES %s",
+	stmt := fmt.Sprintf("INSERT INTO superchargers (id, name, url, active, street, city, state, zipcode) VALUES %s",
 		strings.Join(valueStrings, ","))
 	_, err = db.Exec(stmt, valueArgs...)
-	fmt.Println(err)
+}
 
+func processLocality(locality string) map[string]string {
+	address := make(map[string]string)
+
+	words := strings.Split(locality, ",")
+	address["city"] = words[0]
+
+	for _, word := range strings.Split(words[1], " ") {
+		if strings.Contains(word, "-") {
+			address["zipcode"] = strings.Split(word, "-")[0]
+		} else if len(word) == 2 {
+			address["state"] = word
+		} else {
+			address["zipcode"] = word
+		}
+	}
+	return address
 }
