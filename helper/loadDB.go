@@ -41,15 +41,15 @@ func LoadDB(stations []model.Station) {
 	defer db.Close()
 
 	valueStrings := make([]string, 0, len(stations))
-	valueArgs := make([]interface{}, 0, len(stations)*6)
+	valueArgs := make([]interface{}, 0, len(stations)*8)
 	for index, station := range stations {
 		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?, ?, ?)")
 		output := processLocality(station.Address.Locality)
 		valueArgs = append(valueArgs, index)
 		valueArgs = append(valueArgs, station.Name)
 		valueArgs = append(valueArgs, station.URL)
-		valueArgs = append(valueArgs, station.Address.Street)
 		valueArgs = append(valueArgs, station.Active)
+		valueArgs = append(valueArgs, station.Address.Street)
 		valueArgs = append(valueArgs, output["city"])
 		valueArgs = append(valueArgs, output["state"])
 		valueArgs = append(valueArgs, output["zipcode"])
