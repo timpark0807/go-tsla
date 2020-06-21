@@ -12,6 +12,9 @@ type Station struct {
 }
 
 type Address struct {
+	Locality string `json:"locality,omitempty"`
 	Street   string `json:"street"`
-	Locality string `json:"locality"`
+	City     string `json:"city"`
+	State    string `json:"state"`
+	Zipcode  string `json:"zipcode"`
 }
