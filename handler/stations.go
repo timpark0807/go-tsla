@@ -37,7 +37,7 @@ func ListStations(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(output)
 }
 
-func GetStation(w http.ResponseWriter, r *http.Request) {
+func GetStationByZip(w http.ResponseWriter, r *http.Request) {
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("Error")
@@ -77,4 +77,21 @@ func ListStatusStations(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	json.NewEncoder(w).Encode(output)
+}
+
+func GetStationByState(w http.ResponseWriter, r *http.Request) {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error")
+	}
+	dbConnectionString := os.Getenv("DB_CONNECTION_STRING")
+
+	db, _ := sql.Open("mysql", dbConnectionString)
+	defer db.Close()
+
+	var params = mux.Vars(r)
+	var station model.Station
+	db.QueryRow("SELECT name, url, active, street, city, state, zipcode FROM superchargers where state = ?", params["state"]).Scan(&station.Name, &station.URL, &station.Active, &station.Address.Street, &station.Address.City, &station.Address.State, &station.Address.Zipcode)
+	json.NewEncoder(w).Encode(station)
+
 }
